@@ -15,23 +15,23 @@ import { ActivityFeedComponent } from '../activity-feed/activity-feed.component'
 import { AiInsightsPanelComponent, Insight } from '../ai-insights-panel/ai-insights-panel.component';
 
 @Component({
-  selector: 'app-dashboard',
-  standalone: true,
-  imports: [
-    CommonModule,
-    SkeletonLoaderComponent,
-    KpiCardComponent,
-    FiltersBarComponent,
-    ChartsPanelComponent,
-    ProjectsTableComponent,
-    ProjectDrawerComponent,
-    ActivityFeedComponent,
-    AiInsightsPanelComponent
-  ],
-  template: `
+	selector: 'app-dashboard',
+	standalone: true,
+	imports: [
+		CommonModule,
+		SkeletonLoaderComponent,
+		KpiCardComponent,
+		FiltersBarComponent,
+		ChartsPanelComponent,
+		ProjectsTableComponent,
+		ProjectDrawerComponent,
+		ActivityFeedComponent,
+		AiInsightsPanelComponent
+	],
+	template: `
     <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       <!-- Navigation -->
-      <nav class="bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-700 sticky top-0 z-30 no-print">
+      <nav class="bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 no-print">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="flex items-center justify-between h-16">
             <div class="flex items-center gap-3">
@@ -138,7 +138,7 @@ import { AiInsightsPanelComponent, Insight } from '../ai-insights-panel/ai-insig
         } @else {
           <!-- Filters (show on all tabs except overview and departments) -->
           @if (activeTab() !== 'overview' && activeTab() !== 'departments') {
-            <div class="animate-slide-up relative z-50" style="overflow: visible;">
+            <div class="animate-slide-up relative z-30" style="overflow: visible;">
               <app-filters-bar
                 [filters]="filters()"
                 [availableDepartments]="availableDepartments"
@@ -297,435 +297,435 @@ import { AiInsightsPanelComponent, Insight } from '../ai-insights-panel/ai-insig
       ></app-project-drawer>
     </div>
   `,
-  styles: []
+	styles: []
 })
 export class DashboardComponent implements OnInit {
-  private demoDataService = inject(DemoDataService);
-  private exportService = inject(ExportService);
-  private toastService = inject(ToastService);
-  themeService = inject(ThemeService);
+	private demoDataService = inject(DemoDataService);
+	private exportService = inject(ExportService);
+	private toastService = inject(ToastService);
+	themeService = inject(ThemeService);
 
-  // State
-  allProjects = signal<Project[]>([]);
-  filters = signal<Filters>({
-    departments: [],
-    regions: [],
-    statuses: [],
-    datePreset: 'All',
-    search: '',
-    maxRisk: 100,
-    minReward: 0
-  });
-  isLoading = signal<boolean>(true);
-  selectedProject = signal<Project | null>(null);
-  isDrawerOpen = signal<boolean>(false);
-  activeTab = signal<string>('overview');
+	// State
+	allProjects = signal<Project[]>([]);
+	filters = signal<Filters>({
+		departments: [],
+		regions: [],
+		statuses: [],
+		datePreset: 'All',
+		search: '',
+		maxRisk: 100,
+		minReward: 0
+	});
+	isLoading = signal<boolean>(true);
+	selectedProject = signal<Project | null>(null);
+	isDrawerOpen = signal<boolean>(false);
+	activeTab = signal<string>('overview');
 
-  tabs = [
-    { id: 'overview', label: 'Overview' },
-    { id: 'projects', label: 'Projects' },
-    { id: 'departments', label: 'Departments' },
-    { id: 'analytics', label: 'Analytics' }
-  ];
+	tabs = [
+		{ id: 'overview', label: 'Overview' },
+		{ id: 'projects', label: 'Projects' },
+		{ id: 'departments', label: 'Departments' },
+		{ id: 'analytics', label: 'Analytics' }
+	];
 
-  availableDepartments: Department[] = [];
-  availableRegions: Region[] = [];
-  availableStatuses: ProjectStatus[] = [];
+	availableDepartments: Department[] = [];
+	availableRegions: Region[] = [];
+	availableStatuses: ProjectStatus[] = [];
 
-  // Computed
-  filteredProjects = computed(() => {
-    let projects = this.allProjects();
-    const f = this.filters();
+	// Computed
+	filteredProjects = computed(() => {
+		let projects = this.allProjects();
+		const f = this.filters();
 
-    // Department filter
-    if (f.departments.length > 0) {
-      projects = projects.filter(p => f.departments.includes(p.department));
-    }
+		// Department filter
+		if (f.departments.length > 0) {
+			projects = projects.filter(p => f.departments.includes(p.department));
+		}
 
-    // Region filter
-    if (f.regions.length > 0) {
-      projects = projects.filter(p => f.regions.includes(p.region));
-    }
+		// Region filter
+		if (f.regions.length > 0) {
+			projects = projects.filter(p => f.regions.includes(p.region));
+		}
 
-    // Status filter
-    if (f.statuses.length > 0) {
-      projects = projects.filter(p => f.statuses.includes(p.status));
-    }
+		// Status filter
+		if (f.statuses.length > 0) {
+			projects = projects.filter(p => f.statuses.includes(p.status));
+		}
 
-    // Search filter
-    if (f.search) {
-      const search = f.search.toLowerCase();
-      projects = projects.filter(p =>
-        p.name.toLowerCase().includes(search) ||
-        p.id.toLowerCase().includes(search) ||
-        p.owner.toLowerCase().includes(search) ||
-        p.department.toLowerCase().includes(search) ||
-        p.region.toLowerCase().includes(search)
-      );
-    }
+		// Search filter
+		if (f.search) {
+			const search = f.search.toLowerCase();
+			projects = projects.filter(p =>
+				p.name.toLowerCase().includes(search) ||
+				p.id.toLowerCase().includes(search) ||
+				p.owner.toLowerCase().includes(search) ||
+				p.department.toLowerCase().includes(search) ||
+				p.region.toLowerCase().includes(search)
+			);
+		}
 
-    // Risk filter
-    projects = projects.filter(p => p.risk <= f.maxRisk);
+		// Risk filter
+		projects = projects.filter(p => p.risk <= f.maxRisk);
 
-    // Reward filter
-    projects = projects.filter(p => p.reward >= f.minReward);
+		// Reward filter
+		projects = projects.filter(p => p.reward >= f.minReward);
 
-    // Date filter
-    if (f.datePreset !== 'All') {
-      const now = new Date();
-      const cutoffDate = new Date();
+		// Date filter
+		if (f.datePreset !== 'All') {
+			const now = new Date();
+			const cutoffDate = new Date();
 
-      if (f.datePreset === 'Last 30 days') {
-        cutoffDate.setDate(now.getDate() - 30);
-      } else if (f.datePreset === 'Last 90 days') {
-        cutoffDate.setDate(now.getDate() - 90);
-      } else if (f.datePreset === 'YTD') {
-        cutoffDate.setMonth(0, 1);
-      }
+			if (f.datePreset === 'Last 30 days') {
+				cutoffDate.setDate(now.getDate() - 30);
+			} else if (f.datePreset === 'Last 90 days') {
+				cutoffDate.setDate(now.getDate() - 90);
+			} else if (f.datePreset === 'YTD') {
+				cutoffDate.setMonth(0, 1);
+			}
 
-      projects = projects.filter(p => p.startDate >= cutoffDate);
-    }
+			projects = projects.filter(p => p.startDate >= cutoffDate);
+		}
 
-    return projects;
-  });
+		return projects;
+	});
 
-  kpis = computed(() => {
-    const projects = this.filteredProjects();
-    const total = projects.length;
+	kpis = computed(() => {
+		const projects = this.filteredProjects();
+		const total = projects.length;
 
-    const onTimeCount = projects.filter(p => p.status === 'On Track' || p.delayDays === 0).length;
-    const onTimePercent = total > 0 ? (onTimeCount / total * 100).toFixed(1) : '0';
+		const onTimeCount = projects.filter(p => p.status === 'On Track' || p.delayDays === 0).length;
+		const onTimePercent = total > 0 ? (onTimeCount / total * 100).toFixed(1) : '0';
 
-    const totalBudgetAllocated = projects.reduce((sum, p) => sum + p.budgetAllocated, 0);
-    const totalBudgetSpent = projects.reduce((sum, p) => sum + p.budgetSpent, 0);
-    const budgetUsedPercent = totalBudgetAllocated > 0 ? (totalBudgetSpent / totalBudgetAllocated * 100).toFixed(1) : '0';
+		const totalBudgetAllocated = projects.reduce((sum, p) => sum + p.budgetAllocated, 0);
+		const totalBudgetSpent = projects.reduce((sum, p) => sum + p.budgetSpent, 0);
+		const budgetUsedPercent = totalBudgetAllocated > 0 ? (totalBudgetSpent / totalBudgetAllocated * 100).toFixed(1) : '0';
 
-    const riskAlerts = projects.filter(p => p.risk > 70).length;
+		const riskAlerts = projects.filter(p => p.risk > 70).length;
 
-    // Generate sparkline data (last 30 days trend)
-    const projectsSparkline = this.generateSparklineData(total, 12.5, 30);
-    const onTimeSparkline = this.generateSparklineData(parseFloat(onTimePercent), 5.2, 30);
-    const budgetSparkline = this.generateSparklineData(parseFloat(budgetUsedPercent), -2.1, 30);
-    const alertsSparkline = this.generateSparklineData(riskAlerts, -8.3, 30);
+		// Generate sparkline data (last 30 days trend)
+		const projectsSparkline = this.generateSparklineData(total, 12.5, 30);
+		const onTimeSparkline = this.generateSparklineData(parseFloat(onTimePercent), 5.2, 30);
+		const budgetSparkline = this.generateSparklineData(parseFloat(budgetUsedPercent), -2.1, 30);
+		const alertsSparkline = this.generateSparklineData(riskAlerts, -8.3, 30);
 
-    return [
-      {
-        label: 'Active Projects',
-        value: total,
-        change: 12.5,
-        trend: 'up' as const,
-        sparklineData: projectsSparkline,
-        sparklineColor: '#10b981'
-      },
-      {
-        label: 'On-Time Delivery',
-        value: `${onTimePercent}%`,
-        change: 5.2,
-        trend: 'up' as const,
-        sparklineData: onTimeSparkline,
-        sparklineColor: '#10b981'
-      },
-      {
-        label: 'Budget Used',
-        value: `${budgetUsedPercent}%`,
-        change: -2.1,
-        trend: 'down' as const,
-        sparklineData: budgetSparkline,
-        sparklineColor: '#ef4444'
-      },
-      {
-        label: 'Risk Alerts',
-        value: riskAlerts,
-        change: -8.3,
-        trend: 'down' as const,
-        sparklineData: alertsSparkline,
-        sparklineColor: '#10b981'
-      }
-    ] as KPI[];
-  });
+		return [
+			{
+				label: 'Active Projects',
+				value: total,
+				change: 12.5,
+				trend: 'up' as const,
+				sparklineData: projectsSparkline,
+				sparklineColor: '#10b981'
+			},
+			{
+				label: 'On-Time Delivery',
+				value: `${onTimePercent}%`,
+				change: 5.2,
+				trend: 'up' as const,
+				sparklineData: onTimeSparkline,
+				sparklineColor: '#10b981'
+			},
+			{
+				label: 'Budget Used',
+				value: `${budgetUsedPercent}%`,
+				change: -2.1,
+				trend: 'down' as const,
+				sparklineData: budgetSparkline,
+				sparklineColor: '#ef4444'
+			},
+			{
+				label: 'Risk Alerts',
+				value: riskAlerts,
+				change: -8.3,
+				trend: 'down' as const,
+				sparklineData: alertsSparkline,
+				sparklineColor: '#10b981'
+			}
+		] as KPI[];
+	});
 
-  // Recent activities (mock data for now)
-  recentActivities = computed((): Activity[] => {
-    const projects = this.allProjects();
-    if (projects.length === 0) return [];
+	// Recent activities (mock data for now)
+	recentActivities = computed((): Activity[] => {
+		const projects = this.allProjects();
+		if (projects.length === 0) return [];
 
-    const activities: Activity[] = [];
-    const now = new Date();
+		const activities: Activity[] = [];
+		const now = new Date();
 
-    // Generate mock activities based on project data
-    projects.slice(0, 15).forEach((project, index) => {
-      const minutesAgo = index * 15 + Math.floor(Math.random() * 10);
-      const timestamp = new Date(now.getTime() - minutesAgo * 60000);
+		// Generate mock activities based on project data
+		projects.slice(0, 15).forEach((project, index) => {
+			const minutesAgo = index * 15 + Math.floor(Math.random() * 10);
+			const timestamp = new Date(now.getTime() - minutesAgo * 60000);
 
-      if (project.status === 'Blocked') {
-        activities.push({
-          id: `act-${index}-1`,
-          type: 'status_change',
-          projectId: project.id,
-          projectName: project.name,
-          message: `${project.name} moved to Blocked status`,
-          timestamp,
-          severity: 'critical'
-        });
-      } else if (project.progress === 100) {
-        activities.push({
-          id: `act-${index}-2`,
-          type: 'completion',
-          projectId: project.id,
-          projectName: project.name,
-          message: `${project.name} completed successfully`,
-          timestamp,
-          severity: 'success'
-        });
-      } else if (project.risk > 80) {
-        activities.push({
-          id: `act-${index}-3`,
-          type: 'alert',
-          projectId: project.id,
-          projectName: project.name,
-          message: `High risk alert for ${project.name}`,
-          timestamp,
-          severity: 'warning'
-        });
-      } else if (project.budgetSpent > project.budgetAllocated * 0.95) {
-        activities.push({
-          id: `act-${index}-4`,
-          type: 'budget',
-          projectId: project.id,
-          projectName: project.name,
-          message: `Budget alert: ${project.department} at ${Math.round(project.budgetSpent / project.budgetAllocated * 100)}%`,
-          timestamp,
-          severity: 'warning'
-        });
-      }
-    });
+			if (project.status === 'Blocked') {
+				activities.push({
+					id: `act-${index}-1`,
+					type: 'status_change',
+					projectId: project.id,
+					projectName: project.name,
+					message: `${project.name} moved to Blocked status`,
+					timestamp,
+					severity: 'critical'
+				});
+			} else if (project.progress === 100) {
+				activities.push({
+					id: `act-${index}-2`,
+					type: 'completion',
+					projectId: project.id,
+					projectName: project.name,
+					message: `${project.name} completed successfully`,
+					timestamp,
+					severity: 'success'
+				});
+			} else if (project.risk > 80) {
+				activities.push({
+					id: `act-${index}-3`,
+					type: 'alert',
+					projectId: project.id,
+					projectName: project.name,
+					message: `High risk alert for ${project.name}`,
+					timestamp,
+					severity: 'warning'
+				});
+			} else if (project.budgetSpent > project.budgetAllocated * 0.95) {
+				activities.push({
+					id: `act-${index}-4`,
+					type: 'budget',
+					projectId: project.id,
+					projectName: project.name,
+					message: `Budget alert: ${project.department} at ${Math.round(project.budgetSpent / project.budgetAllocated * 100)}%`,
+					timestamp,
+					severity: 'warning'
+				});
+			}
+		});
 
-    return activities.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()).slice(0, 10);
-  });
+		return activities.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()).slice(0, 10);
+	});
 
-  // AI-generated insights (mock data)
-  aiInsights = computed((): Insight[] => {
-    const projects = this.filteredProjects();
-    const insights: Insight[] = [];
+	// AI-generated insights (mock data)
+	aiInsights = computed((): Insight[] => {
+		const projects = this.filteredProjects();
+		const insights: Insight[] = [];
 
-    // Insight 1: Critical projects
-    const criticalCount = projects.filter(p => p.risk > 70).length;
-    if (criticalCount > 0) {
-      insights.push({
-        id: 'insight-1',
-        title: `${criticalCount} projects need immediate attention`,
-        description: `Based on risk analysis, ${criticalCount} projects have risk scores above 70 and may require intervention to prevent delays or failures.`,
-        severity: criticalCount > 5 ? 'critical' : 'warning',
-        category: 'risk',
-        actionLabel: 'View Critical Projects',
-        actionData: { filter: 'high-risk' },
-        confidence: 94
-      });
-    }
+		// Insight 1: Critical projects
+		const criticalCount = projects.filter(p => p.risk > 70).length;
+		if (criticalCount > 0) {
+			insights.push({
+				id: 'insight-1',
+				title: `${criticalCount} projects need immediate attention`,
+				description: `Based on risk analysis, ${criticalCount} projects have risk scores above 70 and may require intervention to prevent delays or failures.`,
+				severity: criticalCount > 5 ? 'critical' : 'warning',
+				category: 'risk',
+				actionLabel: 'View Critical Projects',
+				actionData: { filter: 'high-risk' },
+				confidence: 94
+			});
+		}
 
-    // Insight 2: Budget trending
-    const totalBudgetAllocated = projects.reduce((sum, p) => sum + p.budgetAllocated, 0);
-    const totalBudgetSpent = projects.reduce((sum, p) => sum + p.budgetSpent, 0);
-    const budgetPercent = totalBudgetAllocated > 0 ? (totalBudgetSpent / totalBudgetAllocated * 100) : 0;
+		// Insight 2: Budget trending
+		const totalBudgetAllocated = projects.reduce((sum, p) => sum + p.budgetAllocated, 0);
+		const totalBudgetSpent = projects.reduce((sum, p) => sum + p.budgetSpent, 0);
+		const budgetPercent = totalBudgetAllocated > 0 ? (totalBudgetSpent / totalBudgetAllocated * 100) : 0;
 
-    if (budgetPercent > 90) {
-      insights.push({
-        id: 'insight-2',
-        title: 'Budget utilization exceeds 90%',
-        description: `Current spending is at ${budgetPercent.toFixed(1)}% of allocated budget. Consider reviewing project priorities or requesting additional funds.`,
-        severity: budgetPercent > 100 ? 'critical' : 'warning',
-        category: 'budget',
-        actionLabel: 'View Budget Details',
-        actionData: { view: 'budget' },
-        confidence: 88
-      });
-    }
+		if (budgetPercent > 90) {
+			insights.push({
+				id: 'insight-2',
+				title: 'Budget utilization exceeds 90%',
+				description: `Current spending is at ${budgetPercent.toFixed(1)}% of allocated budget. Consider reviewing project priorities or requesting additional funds.`,
+				severity: budgetPercent > 100 ? 'critical' : 'warning',
+				category: 'budget',
+				actionLabel: 'View Budget Details',
+				actionData: { view: 'budget' },
+				confidence: 88
+			});
+		}
 
-    // Insight 3: Delay forecast
-    const delayedProjects = projects.filter(p => p.delayDays > 0);
-    if (delayedProjects.length > 3) {
-      insights.push({
-        id: 'insight-3',
-        title: `Forecast: ${delayedProjects.length} projects may delay next month`,
-        description: `Based on current trends, ${delayedProjects.length} projects are showing delay patterns. Early intervention could prevent timeline slippage.`,
-        severity: 'warning',
-        category: 'timeline',
-        actionLabel: 'See Forecast',
-        actionData: { view: 'delays' },
-        confidence: 76
-      });
-    }
+		// Insight 3: Delay forecast
+		const delayedProjects = projects.filter(p => p.delayDays > 0);
+		if (delayedProjects.length > 3) {
+			insights.push({
+				id: 'insight-3',
+				title: `Forecast: ${delayedProjects.length} projects may delay next month`,
+				description: `Based on current trends, ${delayedProjects.length} projects are showing delay patterns. Early intervention could prevent timeline slippage.`,
+				severity: 'warning',
+				category: 'timeline',
+				actionLabel: 'See Forecast',
+				actionData: { view: 'delays' },
+				confidence: 76
+			});
+		}
 
-    // Insight 4: Performance recommendation
-    const lowEfficiencyProjects = projects.filter(p => p.efficiency < 50);
-    if (lowEfficiencyProjects.length > 0) {
-      insights.push({
-        id: 'insight-4',
-        title: 'Efficiency optimization opportunity',
-        description: `${lowEfficiencyProjects.length} projects have efficiency scores below 50%. Consider resource reallocation or process improvements.`,
-        severity: 'info',
-        category: 'performance',
-        actionLabel: 'View Details',
-        actionData: { filter: 'low-efficiency' },
-        confidence: 82
-      });
-    }
+		// Insight 4: Performance recommendation
+		const lowEfficiencyProjects = projects.filter(p => p.efficiency < 50);
+		if (lowEfficiencyProjects.length > 0) {
+			insights.push({
+				id: 'insight-4',
+				title: 'Efficiency optimization opportunity',
+				description: `${lowEfficiencyProjects.length} projects have efficiency scores below 50%. Consider resource reallocation or process improvements.`,
+				severity: 'info',
+				category: 'performance',
+				actionLabel: 'View Details',
+				actionData: { filter: 'low-efficiency' },
+				confidence: 82
+			});
+		}
 
-    return insights;
-  });
+		return insights;
+	});
 
-  // Critical projects (top 5 by risk)
-  criticalProjects = computed(() => {
-    return this.filteredProjects()
-      .filter(p => p.risk > 70)
-      .sort((a, b) => b.risk - a.risk)
-      .slice(0, 5);
-  });
+	// Critical projects (top 5 by risk)
+	criticalProjects = computed(() => {
+		return this.filteredProjects()
+			.filter(p => p.risk > 70)
+			.sort((a, b) => b.risk - a.risk)
+			.slice(0, 5);
+	});
 
-  // Top performers (top 5 by efficiency)
-  topPerformers = computed(() => {
-    return this.filteredProjects()
-      .sort((a, b) => b.efficiency - a.efficiency)
-      .slice(0, 5);
-  });
+	// Top performers (top 5 by efficiency)
+	topPerformers = computed(() => {
+		return this.filteredProjects()
+			.sort((a, b) => b.efficiency - a.efficiency)
+			.slice(0, 5);
+	});
 
-  ngOnInit(): void {
-    // Load available options
-    this.availableDepartments = this.demoDataService.getDepartments();
-    this.availableRegions = this.demoDataService.getRegions();
-    this.availableStatuses = this.demoDataService.getStatuses();
+	ngOnInit(): void {
+		// Load available options
+		this.availableDepartments = this.demoDataService.getDepartments();
+		this.availableRegions = this.demoDataService.getRegions();
+		this.availableStatuses = this.demoDataService.getStatuses();
 
-    // Simulate loading delay
-    setTimeout(() => {
-      this.allProjects.set(this.demoDataService.generateProjects(48));
-      this.isLoading.set(false);
-      this.toastService.success('Dashboard loaded successfully');
-    }, 900);
-  }
+		// Simulate loading delay
+		setTimeout(() => {
+			this.allProjects.set(this.demoDataService.generateProjects(48));
+			this.isLoading.set(false);
+			this.toastService.success('Dashboard loaded successfully');
+		}, 900);
+	}
 
-  onFiltersChange(newFilters: Filters): void {
-    this.filters.set(newFilters);
-  }
+	onFiltersChange(newFilters: Filters): void {
+		this.filters.set(newFilters);
+	}
 
-  openProjectDrawer(project: Project): void {
-    this.selectedProject.set(project);
-    this.isDrawerOpen.set(true);
-  }
+	openProjectDrawer(project: Project): void {
+		this.selectedProject.set(project);
+		this.isDrawerOpen.set(true);
+	}
 
-  closeProjectDrawer(): void {
-    this.isDrawerOpen.set(false);
-    setTimeout(() => this.selectedProject.set(null), 300);
-  }
+	closeProjectDrawer(): void {
+		this.isDrawerOpen.set(false);
+		setTimeout(() => this.selectedProject.set(null), 300);
+	}
 
-  filterByDepartment(dept: Department): void {
-    this.filters.update(f => ({ ...f, departments: [dept] }));
-    this.activeTab.set('projects');
-    this.closeProjectDrawer();
-  }
+	filterByDepartment(dept: Department): void {
+		this.filters.update(f => ({ ...f, departments: [dept] }));
+		this.activeTab.set('projects');
+		this.closeProjectDrawer();
+	}
 
-  filterByRegion(region: Region): void {
-    this.filters.update(f => ({ ...f, regions: [region] }));
-    this.activeTab.set('projects');
-    this.closeProjectDrawer();
-  }
+	filterByRegion(region: Region): void {
+		this.filters.update(f => ({ ...f, regions: [region] }));
+		this.activeTab.set('projects');
+		this.closeProjectDrawer();
+	}
 
-  filterByStatus(status: ProjectStatus): void {
-    this.filters.update(f => ({ ...f, statuses: [status] }));
-    this.activeTab.set('projects');
-    this.closeProjectDrawer();
-  }
+	filterByStatus(status: ProjectStatus): void {
+		this.filters.update(f => ({ ...f, statuses: [status] }));
+		this.activeTab.set('projects');
+		this.closeProjectDrawer();
+	}
 
-  getDepartmentStats(dept: Department) {
-    const deptProjects = this.allProjects().filter(p => p.department === dept);
-    const total = deptProjects.length;
-    const avgRisk = total > 0 ? Math.round(deptProjects.reduce((sum, p) => sum + p.risk, 0) / total) : 0;
-    const avgEfficiency = total > 0 ? Math.round(deptProjects.reduce((sum, p) => sum + p.efficiency, 0) / total) : 0;
-    return { total, avgRisk, avgEfficiency };
-  }
+	getDepartmentStats(dept: Department) {
+		const deptProjects = this.allProjects().filter(p => p.department === dept);
+		const total = deptProjects.length;
+		const avgRisk = total > 0 ? Math.round(deptProjects.reduce((sum, p) => sum + p.risk, 0) / total) : 0;
+		const avgEfficiency = total > 0 ? Math.round(deptProjects.reduce((sum, p) => sum + p.efficiency, 0) / total) : 0;
+		return { total, avgRisk, avgEfficiency };
+	}
 
-  exportCSV(): void {
-    this.exportService.exportToCSV(this.filteredProjects());
-    this.toastService.success('Projects exported to CSV');
-  }
+	exportCSV(): void {
+		this.exportService.exportToCSV(this.filteredProjects());
+		this.toastService.success('Projects exported to CSV');
+	}
 
-  exportJSON(): void {
-    this.exportService.exportToJSON({
-      projects: this.filteredProjects(),
-      filters: this.filters()
-    });
-    this.toastService.success('Dashboard exported to JSON');
-  }
+	exportJSON(): void {
+		this.exportService.exportToJSON({
+			projects: this.filteredProjects(),
+			filters: this.filters()
+		});
+		this.toastService.success('Dashboard exported to JSON');
+	}
 
-  print(): void {
-    this.exportService.printDashboard();
-  }
+	print(): void {
+		this.exportService.printDashboard();
+	}
 
-  toggleDarkMode(): void {
-    this.themeService.toggle();
-  }
+	toggleDarkMode(): void {
+		this.themeService.toggle();
+	}
 
-  onActivityClick(activity: Activity): void {
-    // Find the project related to this activity and open its drawer
-    const project = this.allProjects().find(p => p.id === activity.projectId);
-    if (project) {
-      this.openProjectDrawer(project);
-    }
-  }
+	onActivityClick(activity: Activity): void {
+		// Find the project related to this activity and open its drawer
+		const project = this.allProjects().find(p => p.id === activity.projectId);
+		if (project) {
+			this.openProjectDrawer(project);
+		}
+	}
 
-  viewAllActivities(): void {
-    // Switch to Projects tab to see all projects
-    this.activeTab.set('projects');
-    this.toastService.info('Viewing all projects');
-  }
+	viewAllActivities(): void {
+		// Switch to Projects tab to see all projects
+		this.activeTab.set('projects');
+		this.toastService.info('Viewing all projects');
+	}
 
-  onInsightAction(insight: Insight): void {
-    // Handle insight actions
-    switch (insight.actionData?.filter) {
-      case 'high-risk':
-        this.filters.update(f => ({ ...f, maxRisk: 70 }));
-        this.activeTab.set('projects');
-        this.toastService.info('Filtered to show high-risk projects');
-        break;
-      case 'low-efficiency':
-        // Custom filter for low efficiency (would need to add this to filters)
-        this.activeTab.set('projects');
-        this.toastService.info('Showing low-efficiency projects');
-        break;
-      default:
-        if (insight.actionData?.view === 'budget') {
-          this.activeTab.set('analytics');
-          this.toastService.info('Viewing budget analysis');
-        } else if (insight.actionData?.view === 'delays') {
-          this.activeTab.set('analytics');
-          this.toastService.info('Viewing delay analysis');
-        }
-    }
-  }
+	onInsightAction(insight: Insight): void {
+		// Handle insight actions
+		switch (insight.actionData?.filter) {
+			case 'high-risk':
+				this.filters.update(f => ({ ...f, maxRisk: 70 }));
+				this.activeTab.set('projects');
+				this.toastService.info('Filtered to show high-risk projects');
+				break;
+			case 'low-efficiency':
+				// Custom filter for low efficiency (would need to add this to filters)
+				this.activeTab.set('projects');
+				this.toastService.info('Showing low-efficiency projects');
+				break;
+			default:
+				if (insight.actionData?.view === 'budget') {
+					this.activeTab.set('analytics');
+					this.toastService.info('Viewing budget analysis');
+				} else if (insight.actionData?.view === 'delays') {
+					this.activeTab.set('analytics');
+					this.toastService.info('Viewing delay analysis');
+				}
+		}
+	}
 
-  /**
-   * Generate realistic sparkline data showing historical trend
-   * @param currentValue - The current/end value
-   * @param changePercent - Percentage change over the period
-   * @param days - Number of days to generate
-   */
-  private generateSparklineData(currentValue: number, changePercent: number, days: number = 30): number[] {
-    const data: number[] = [];
+	/**
+	 * Generate realistic sparkline data showing historical trend
+	 * @param currentValue - The current/end value
+	 * @param changePercent - Percentage change over the period
+	 * @param days - Number of days to generate
+	 */
+	private generateSparklineData(currentValue: number, changePercent: number, days: number = 30): number[] {
+		const data: number[] = [];
 
-    // Calculate starting value based on change percent
-    const startValue = currentValue / (1 + changePercent / 100);
+		// Calculate starting value based on change percent
+		const startValue = currentValue / (1 + changePercent / 100);
 
-    // Generate smooth trend with some variance
-    for (let i = 0; i < days; i++) {
-      // Linear progression from start to current value
-      const progress = i / (days - 1);
-      const baseValue = startValue + (currentValue - startValue) * progress;
+		// Generate smooth trend with some variance
+		for (let i = 0; i < days; i++) {
+			// Linear progression from start to current value
+			const progress = i / (days - 1);
+			const baseValue = startValue + (currentValue - startValue) * progress;
 
-      // Add realistic variance (±5% random fluctuation)
-      const variance = (Math.sin(i * 0.5) + Math.cos(i * 0.3)) * 0.025 * baseValue;
+			// Add realistic variance (±5% random fluctuation)
+			const variance = (Math.sin(i * 0.5) + Math.cos(i * 0.3)) * 0.025 * baseValue;
 
-      data.push(Math.max(0, baseValue + variance));
-    }
+			data.push(Math.max(0, baseValue + variance));
+		}
 
-    return data;
-  }
+		return data;
+	}
 }

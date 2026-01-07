@@ -6,30 +6,30 @@ import { ExportService } from '../../services/export.service';
 import { ToastService } from '../../services/toast.service';
 
 @Component({
-  selector: 'app-project-drawer',
-  standalone: true,
-  imports: [CommonModule],
-  animations: [
-    trigger('slideIn', [
-      transition(':enter', [
-        style({ transform: 'translateX(100%)' }),
-        animate('300ms cubic-bezier(0.4, 0, 0.2, 1)', style({ transform: 'translateX(0)' }))
-      ]),
-      transition(':leave', [
-        animate('200ms cubic-bezier(0.4, 0, 1, 1)', style({ transform: 'translateX(100%)' }))
-      ])
-    ]),
-    trigger('fadeIn', [
-      transition(':enter', [
-        style({ opacity: 0 }),
-        animate('200ms ease-in', style({ opacity: 1 }))
-      ]),
-      transition(':leave', [
-        animate('150ms ease-out', style({ opacity: 0 }))
-      ])
-    ])
-  ],
-  template: `
+	selector: 'app-project-drawer',
+	standalone: true,
+	imports: [CommonModule],
+	animations: [
+		trigger('slideIn', [
+			transition(':enter', [
+				style({ transform: 'translateX(100%)' }),
+				animate('300ms cubic-bezier(0.4, 0, 0.2, 1)', style({ transform: 'translateX(0)' }))
+			]),
+			transition(':leave', [
+				animate('200ms cubic-bezier(0.4, 0, 1, 1)', style({ transform: 'translateX(100%)' }))
+			])
+		]),
+		trigger('fadeIn', [
+			transition(':enter', [
+				style({ opacity: 0 }),
+				animate('200ms ease-in', style({ opacity: 1 }))
+			]),
+			transition(':leave', [
+				animate('150ms ease-out', style({ opacity: 0 }))
+			])
+		])
+	],
+	template: `
     @if (isOpen && project) {
       <!-- Backdrop -->
       <div
@@ -42,7 +42,7 @@ import { ToastService } from '../../services/toast.service';
       <!-- Drawer -->
       <div
         @slideIn
-        class="fixed right-0 top-0 h-full w-full md:w-[600px] lg:w-[700px] bg-white dark:bg-gray-900 shadow-2xl z-50 overflow-y-auto no-print"
+        class="fixed right-0 top-0 h-full w-full md:w-[600px] lg:w-[700px] bg-white dark:bg-gray-900 shadow-2xl z-30 overflow-y-auto no-print"
         role="dialog"
         aria-modal="true"
         [attr.aria-labelledby]="'drawer-title-' + project.id"
@@ -260,146 +260,146 @@ import { ToastService } from '../../services/toast.service';
       </div>
     }
   `,
-  styles: []
+	styles: []
 })
 export class ProjectDrawerComponent implements OnChanges {
-  @Input() project: Project | null = null;
-  @Input() isOpen: boolean = false;
-  @Output() closeDrawer = new EventEmitter<void>();
-  @Output() filterByDept = new EventEmitter<Department>();
-  @Output() filterByReg = new EventEmitter<Region>();
-  @Output() filterByStat = new EventEmitter<ProjectStatus>();
+	@Input() project: Project | null = null;
+	@Input() isOpen: boolean = false;
+	@Output() closeDrawer = new EventEmitter<void>();
+	@Output() filterByDept = new EventEmitter<Department>();
+	@Output() filterByReg = new EventEmitter<Region>();
+	@Output() filterByStat = new EventEmitter<ProjectStatus>();
 
-  Math = Math;
-  private exportService = inject(ExportService);
-  private toastService = inject(ToastService);
+	Math = Math;
+	private exportService = inject(ExportService);
+	private toastService = inject(ToastService);
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['isOpen'] && this.isOpen && this.project) {
-      // Prevent body scroll when drawer is open
-      document.body.style.overflow = 'hidden';
-    } else if (changes['isOpen'] && !this.isOpen) {
-      document.body.style.overflow = '';
-    }
-  }
+	ngOnChanges(changes: SimpleChanges): void {
+		if (changes['isOpen'] && this.isOpen && this.project) {
+			// Prevent body scroll when drawer is open
+			document.body.style.overflow = 'hidden';
+		} else if (changes['isOpen'] && !this.isOpen) {
+			document.body.style.overflow = '';
+		}
+	}
 
-  ngOnDestroy(): void {
-    document.body.style.overflow = '';
-  }
+	ngOnDestroy(): void {
+		document.body.style.overflow = '';
+	}
 
-  close(): void {
-    this.closeDrawer.emit();
-  }
+	close(): void {
+		this.closeDrawer.emit();
+	}
 
-  getStatusBadgeClass(): string {
-    if (!this.project) return '';
-    switch (this.project.status) {
-      case 'On Track':
-        return 'bg-success-100 dark:bg-success-900/30 text-success-800 dark:text-success-300';
-      case 'In Progress':
-        return 'bg-primary-100 dark:bg-primary-900/30 text-primary-800 dark:text-primary-300';
-      case 'Delayed':
-        return 'bg-warning-100 dark:bg-warning-900/30 text-warning-800 dark:text-warning-300';
-      case 'Blocked':
-        return 'bg-danger-100 dark:bg-danger-900/30 text-danger-800 dark:text-danger-300';
-      default:
-        return '';
-    }
-  }
+	getStatusBadgeClass(): string {
+		if (!this.project) return '';
+		switch (this.project.status) {
+			case 'On Track':
+				return 'bg-success-100 dark:bg-success-900/30 text-success-800 dark:text-success-300';
+			case 'In Progress':
+				return 'bg-primary-100 dark:bg-primary-900/30 text-primary-800 dark:text-primary-300';
+			case 'Delayed':
+				return 'bg-warning-100 dark:bg-warning-900/30 text-warning-800 dark:text-warning-300';
+			case 'Blocked':
+				return 'bg-danger-100 dark:bg-danger-900/30 text-danger-800 dark:text-danger-300';
+			default:
+				return '';
+		}
+	}
 
-  getDuration(): number {
-    if (!this.project) return 0;
-    const diff = this.project.endDate.getTime() - this.project.startDate.getTime();
-    return Math.ceil(diff / (1000 * 60 * 60 * 24));
-  }
+	getDuration(): number {
+		if (!this.project) return 0;
+		const diff = this.project.endDate.getTime() - this.project.startDate.getTime();
+		return Math.ceil(diff / (1000 * 60 * 60 * 24));
+	}
 
-  formatCurrency(value: number): string {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(value);
-  }
+	formatCurrency(value: number): string {
+		return new Intl.NumberFormat('en-US', {
+			style: 'currency',
+			currency: 'USD',
+			minimumFractionDigits: 0,
+			maximumFractionDigits: 0
+		}).format(value);
+	}
 
-  formatDate(date: Date): string {
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  }
+	formatDate(date: Date): string {
+		return date.toLocaleDateString('en-US', {
+			year: 'numeric',
+			month: 'short',
+			day: 'numeric'
+		});
+	}
 
-  getBurnRate(): number {
-    if (!this.project || this.project.budgetAllocated === 0) return 0;
-    return Math.round((this.project.budgetSpent / this.project.budgetAllocated) * 100);
-  }
+	getBurnRate(): number {
+		if (!this.project || this.project.budgetAllocated === 0) return 0;
+		return Math.round((this.project.budgetSpent / this.project.budgetAllocated) * 100);
+	}
 
-  getBurnRateClass(): string {
-    const rate = this.getBurnRate();
-    if (rate > 100) return 'text-danger-600 dark:text-danger-400';
-    if (rate > 90) return 'text-warning-600 dark:text-warning-400';
-    return 'text-success-600 dark:text-success-400';
-  }
+	getBurnRateClass(): string {
+		const rate = this.getBurnRate();
+		if (rate > 100) return 'text-danger-600 dark:text-danger-400';
+		if (rate > 90) return 'text-warning-600 dark:text-warning-400';
+		return 'text-success-600 dark:text-success-400';
+	}
 
-  getBurnRateBarClass(): string {
-    const rate = this.getBurnRate();
-    if (rate > 100) return 'bg-gradient-to-r from-danger-500 to-danger-600';
-    if (rate > 90) return 'bg-gradient-to-r from-warning-500 to-warning-600';
-    return 'bg-gradient-to-r from-success-500 to-success-600';
-  }
+	getBurnRateBarClass(): string {
+		const rate = this.getBurnRate();
+		if (rate > 100) return 'bg-gradient-to-r from-danger-500 to-danger-600';
+		if (rate > 90) return 'bg-gradient-to-r from-warning-500 to-warning-600';
+		return 'bg-gradient-to-r from-success-500 to-success-600';
+	}
 
-  getAIExplanation(): string {
-    if (!this.project) return '';
+	getAIExplanation(): string {
+		if (!this.project) return '';
 
-    const riskWeight = this.project.risk * 0.4;
-    const delayWeight = this.project.delayDays * 2;
-    const burnWeight = this.getBurnRate() > 100 ? (this.getBurnRate() - 100) * 0.5 : 0;
-    const severityScore = riskWeight + delayWeight + burnWeight;
+		const riskWeight = this.project.risk * 0.4;
+		const delayWeight = this.project.delayDays * 2;
+		const burnWeight = this.getBurnRate() > 100 ? (this.getBurnRate() - 100) * 0.5 : 0;
+		const severityScore = riskWeight + delayWeight + burnWeight;
 
-    let explanation = `This project has a severity score of ${Math.round(severityScore)} calculated from: `;
-    explanation += `Risk (${this.project.risk}) contributing ${riskWeight.toFixed(1)} points, `;
-    explanation += `Delays (${this.project.delayDays} days) adding ${delayWeight.toFixed(1)} points, `;
-    explanation += `and Budget burn rate (${this.getBurnRate()}%) adding ${burnWeight.toFixed(1)} points. `;
+		let explanation = `This project has a severity score of ${Math.round(severityScore)} calculated from: `;
+		explanation += `Risk (${this.project.risk}) contributing ${riskWeight.toFixed(1)} points, `;
+		explanation += `Delays (${this.project.delayDays} days) adding ${delayWeight.toFixed(1)} points, `;
+		explanation += `and Budget burn rate (${this.getBurnRate()}%) adding ${burnWeight.toFixed(1)} points. `;
 
-    if (severityScore > 80) {
-      explanation += 'This indicates critical attention required with immediate intervention needed.';
-    } else if (severityScore > 50) {
-      explanation += 'This suggests elevated concern and close monitoring is recommended.';
-    } else if (severityScore > 25) {
-      explanation += 'This shows moderate risk with standard oversight sufficient.';
-    } else {
-      explanation += 'This indicates low risk with the project proceeding well.';
-    }
+		if (severityScore > 80) {
+			explanation += 'This indicates critical attention required with immediate intervention needed.';
+		} else if (severityScore > 50) {
+			explanation += 'This suggests elevated concern and close monitoring is recommended.';
+		} else if (severityScore > 25) {
+			explanation += 'This shows moderate risk with standard oversight sufficient.';
+		} else {
+			explanation += 'This indicates low risk with the project proceeding well.';
+		}
 
-    return explanation;
-  }
+		return explanation;
+	}
 
-  exportProject(): void {
-    if (this.project) {
-      this.exportService.exportSingleProject(this.project);
-      this.toastService.success('Project exported successfully');
-    }
-  }
+	exportProject(): void {
+		if (this.project) {
+			this.exportService.exportSingleProject(this.project);
+			this.toastService.success('Project exported successfully');
+		}
+	}
 
-  filterByDepartment(): void {
-    if (this.project) {
-      this.filterByDept.emit(this.project.department);
-      this.toastService.info(`Filtered by ${this.project.department}`);
-    }
-  }
+	filterByDepartment(): void {
+		if (this.project) {
+			this.filterByDept.emit(this.project.department);
+			this.toastService.info(`Filtered by ${this.project.department}`);
+		}
+	}
 
-  filterByRegion(): void {
-    if (this.project) {
-      this.filterByReg.emit(this.project.region);
-      this.toastService.info(`Filtered by ${this.project.region}`);
-    }
-  }
+	filterByRegion(): void {
+		if (this.project) {
+			this.filterByReg.emit(this.project.region);
+			this.toastService.info(`Filtered by ${this.project.region}`);
+		}
+	}
 
-  filterByStatus(): void {
-    if (this.project) {
-      this.filterByStat.emit(this.project.status);
-      this.toastService.info(`Filtered by ${this.project.status}`);
-    }
-  }
+	filterByStatus(): void {
+		if (this.project) {
+			this.filterByStat.emit(this.project.status);
+			this.toastService.info(`Filtered by ${this.project.status}`);
+		}
+	}
 }

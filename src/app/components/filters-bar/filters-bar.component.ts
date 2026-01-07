@@ -7,11 +7,11 @@ import { DateRangePickerComponent, DateRange } from '../date-range-picker/date-r
 import { SavedFiltersComponent } from '../saved-filters/saved-filters.component';
 
 @Component({
-  selector: 'app-filters-bar',
-  standalone: true,
-  imports: [CommonModule, FormsModule, DateRangePickerComponent, SavedFiltersComponent],
-  template: `
-    <div class="glass-card p-6 space-y-6 relative z-50" style="overflow: visible !important;">
+	selector: 'app-filters-bar',
+	standalone: true,
+	imports: [CommonModule, FormsModule, DateRangePickerComponent, SavedFiltersComponent],
+	template: `
+    <div class="glass-card p-6 space-y-6 relative z-30" style="overflow: visible !important;">
       <!-- Search -->
       <div class="relative">
         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -170,155 +170,155 @@ import { SavedFiltersComponent } from '../saved-filters/saved-filters.component'
       </div>
     </div>
   `,
-  styles: []
+	styles: []
 })
 export class FiltersBarComponent implements OnInit, OnChanges {
-  @Input() filters!: Filters;
-  @Input() availableDepartments: Department[] = [];
-  @Input() availableRegions: Region[] = [];
-  @Input() availableStatuses: ProjectStatus[] = [];
-  @Output() filtersChange = new EventEmitter<Filters>();
+	@Input() filters!: Filters;
+	@Input() availableDepartments: Department[] = [];
+	@Input() availableRegions: Region[] = [];
+	@Input() availableStatuses: ProjectStatus[] = [];
+	@Output() filtersChange = new EventEmitter<Filters>();
 
-  localFilters!: Filters;
-  searchValue = '';
-  private searchSubject = new Subject<string>();
+	localFilters!: Filters;
+	searchValue = '';
+	private searchSubject = new Subject<string>();
 
-  showDeptDropdown = false;
-  showRegionDropdown = false;
-  showStatusDropdown = false;
+	showDeptDropdown = false;
+	showRegionDropdown = false;
+	showStatusDropdown = false;
 
-  constructor() {
-    this.searchSubject.pipe(debounceTime(300)).subscribe(value => {
-      this.localFilters.search = value;
-      this.onFilterChange();
-    });
-  }
+	constructor() {
+		this.searchSubject.pipe(debounceTime(300)).subscribe(value => {
+			this.localFilters.search = value;
+			this.onFilterChange();
+		});
+	}
 
-  ngOnInit() {
-    this.localFilters = { ...this.filters };
-    this.searchValue = this.filters.search;
-  }
+	ngOnInit() {
+		this.localFilters = { ...this.filters };
+		this.searchValue = this.filters.search;
+	}
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['filters']) {
-      // Sync local filters with external changes (e.g., from drawer quick actions)
-      // Always sync to ensure UI stays in sync with parent state
-      this.localFilters = { ...this.filters };
-      this.searchValue = this.filters.search;
+	ngOnChanges(changes: SimpleChanges): void {
+		if (changes['filters']) {
+			// Sync local filters with external changes (e.g., from drawer quick actions)
+			// Always sync to ensure UI stays in sync with parent state
+			this.localFilters = { ...this.filters };
+			this.searchValue = this.filters.search;
 
-      // Close any open dropdowns when filters change externally
-      this.showDeptDropdown = false;
-      this.showRegionDropdown = false;
-      this.showStatusDropdown = false;
-    }
-  }
+			// Close any open dropdowns when filters change externally
+			this.showDeptDropdown = false;
+			this.showRegionDropdown = false;
+			this.showStatusDropdown = false;
+		}
+	}
 
-  onSearchChange(value: string): void {
-    this.searchSubject.next(value);
-  }
+	onSearchChange(value: string): void {
+		this.searchSubject.next(value);
+	}
 
-  toggleDropdown(type: 'dept' | 'region' | 'status'): void {
-    if (type === 'dept') {
-      this.showDeptDropdown = !this.showDeptDropdown;
-      this.showRegionDropdown = false;
-      this.showStatusDropdown = false;
-    } else if (type === 'region') {
-      this.showRegionDropdown = !this.showRegionDropdown;
-      this.showDeptDropdown = false;
-      this.showStatusDropdown = false;
-    } else {
-      this.showStatusDropdown = !this.showStatusDropdown;
-      this.showDeptDropdown = false;
-      this.showRegionDropdown = false;
-    }
-  }
+	toggleDropdown(type: 'dept' | 'region' | 'status'): void {
+		if (type === 'dept') {
+			this.showDeptDropdown = !this.showDeptDropdown;
+			this.showRegionDropdown = false;
+			this.showStatusDropdown = false;
+		} else if (type === 'region') {
+			this.showRegionDropdown = !this.showRegionDropdown;
+			this.showDeptDropdown = false;
+			this.showStatusDropdown = false;
+		} else {
+			this.showStatusDropdown = !this.showStatusDropdown;
+			this.showDeptDropdown = false;
+			this.showRegionDropdown = false;
+		}
+	}
 
-  toggleDepartment(dept: Department): void {
-    const index = this.localFilters.departments.indexOf(dept);
-    if (index > -1) {
-      this.localFilters.departments = this.localFilters.departments.filter(d => d !== dept);
-    } else {
-      this.localFilters.departments = [...this.localFilters.departments, dept];
-    }
-    this.onFilterChange();
-  }
+	toggleDepartment(dept: Department): void {
+		const index = this.localFilters.departments.indexOf(dept);
+		if (index > -1) {
+			this.localFilters.departments = this.localFilters.departments.filter(d => d !== dept);
+		} else {
+			this.localFilters.departments = [...this.localFilters.departments, dept];
+		}
+		this.onFilterChange();
+	}
 
-  toggleRegion(region: Region): void {
-    const index = this.localFilters.regions.indexOf(region);
-    if (index > -1) {
-      this.localFilters.regions = this.localFilters.regions.filter(r => r !== region);
-    } else {
-      this.localFilters.regions = [...this.localFilters.regions, region];
-    }
-    this.onFilterChange();
-  }
+	toggleRegion(region: Region): void {
+		const index = this.localFilters.regions.indexOf(region);
+		if (index > -1) {
+			this.localFilters.regions = this.localFilters.regions.filter(r => r !== region);
+		} else {
+			this.localFilters.regions = [...this.localFilters.regions, region];
+		}
+		this.onFilterChange();
+	}
 
-  toggleStatus(status: ProjectStatus): void {
-    const index = this.localFilters.statuses.indexOf(status);
-    if (index > -1) {
-      this.localFilters.statuses = this.localFilters.statuses.filter(s => s !== status);
-    } else {
-      this.localFilters.statuses = [...this.localFilters.statuses, status];
-    }
-    this.onFilterChange();
-  }
+	toggleStatus(status: ProjectStatus): void {
+		const index = this.localFilters.statuses.indexOf(status);
+		if (index > -1) {
+			this.localFilters.statuses = this.localFilters.statuses.filter(s => s !== status);
+		} else {
+			this.localFilters.statuses = [...this.localFilters.statuses, status];
+		}
+		this.onFilterChange();
+	}
 
-  getDepartmentLabel(): string {
-    const count = this.localFilters.departments.length;
-    if (count === 0) return 'All Departments';
-    if (count === 1) return this.localFilters.departments[0];
-    return `${count} Departments`;
-  }
+	getDepartmentLabel(): string {
+		const count = this.localFilters.departments.length;
+		if (count === 0) return 'All Departments';
+		if (count === 1) return this.localFilters.departments[0];
+		return `${count} Departments`;
+	}
 
-  getRegionLabel(): string {
-    const count = this.localFilters.regions.length;
-    if (count === 0) return 'All Regions';
-    if (count === 1) return this.localFilters.regions[0];
-    return `${count} Regions`;
-  }
+	getRegionLabel(): string {
+		const count = this.localFilters.regions.length;
+		if (count === 0) return 'All Regions';
+		if (count === 1) return this.localFilters.regions[0];
+		return `${count} Regions`;
+	}
 
-  getStatusLabel(): string {
-    const count = this.localFilters.statuses.length;
-    if (count === 0) return 'All Statuses';
-    if (count === 1) return this.localFilters.statuses[0];
-    return `${count} Selected`;
-  }
+	getStatusLabel(): string {
+		const count = this.localFilters.statuses.length;
+		if (count === 0) return 'All Statuses';
+		if (count === 1) return this.localFilters.statuses[0];
+		return `${count} Selected`;
+	}
 
-  clearFilters(): void {
-    this.localFilters = {
-      departments: [],
-      regions: [],
-      statuses: [],
-      datePreset: 'All',
-      search: '',
-      maxRisk: 100,
-      minReward: 0
-    };
-    this.searchValue = '';
-    this.onFilterChange();
-  }
+	clearFilters(): void {
+		this.localFilters = {
+			departments: [],
+			regions: [],
+			statuses: [],
+			datePreset: 'All',
+			search: '',
+			maxRisk: 100,
+			minReward: 0
+		};
+		this.searchValue = '';
+		this.onFilterChange();
+	}
 
-  onFilterChange(): void {
-    this.filtersChange.emit({ ...this.localFilters });
-  }
+	onFilterChange(): void {
+		this.filtersChange.emit({ ...this.localFilters });
+	}
 
-  onDateRangeChange(range: DateRange): void {
-    // Update local filters with date range
-    // Map date range presets to filter presets
-    const presetMap: Record<string, 'Last 30 days' | 'Last 90 days' | 'YTD' | 'All'> = {
-      'last-30-days': 'Last 30 days',
-      'last-90-days': 'Last 90 days',
-      'ytd': 'YTD',
-      'custom': 'All'
-    };
+	onDateRangeChange(range: DateRange): void {
+		// Update local filters with date range
+		// Map date range presets to filter presets
+		const presetMap: Record<string, 'Last 30 days' | 'Last 90 days' | 'YTD' | 'All'> = {
+			'last-30-days': 'Last 30 days',
+			'last-90-days': 'Last 90 days',
+			'ytd': 'YTD',
+			'custom': 'All'
+		};
 
-    this.localFilters.datePreset = presetMap[range.preset || 'custom'] || 'All';
-    this.onFilterChange();
-  }
+		this.localFilters.datePreset = presetMap[range.preset || 'custom'] || 'All';
+		this.onFilterChange();
+	}
 
-  loadSavedFilter(filters: Filters): void {
-    this.localFilters = { ...filters };
-    this.searchValue = filters.search;
-    this.onFilterChange();
-  }
+	loadSavedFilter(filters: Filters): void {
+		this.localFilters = { ...filters };
+		this.searchValue = filters.search;
+		this.onFilterChange();
+	}
 }
