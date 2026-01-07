@@ -136,16 +136,9 @@ import { AiInsightsPanelComponent, Insight } from '../ai-insights-panel/ai-insig
           <app-skeleton-loader type="chart"></app-skeleton-loader>
           <app-skeleton-loader type="table"></app-skeleton-loader>
         } @else {
-          <!-- KPI Cards -->
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-in">
-            @for (kpi of kpis(); track kpi.label) {
-              <app-kpi-card [kpi]="kpi"></app-kpi-card>
-            }
-          </div>
-
-          <!-- Filters (show on all tabs except overview) -->
-          @if (activeTab() !== 'overview') {
-            <div class="animate-slide-up">
+          <!-- Filters (show on all tabs except overview and departments) -->
+          @if (activeTab() !== 'overview' && activeTab() !== 'departments') {
+            <div class="animate-slide-up relative z-50" style="overflow: visible;">
               <app-filters-bar
                 [filters]="filters()"
                 [availableDepartments]="availableDepartments"
@@ -153,6 +146,15 @@ import { AiInsightsPanelComponent, Insight } from '../ai-insights-panel/ai-insig
                 [availableStatuses]="availableStatuses"
                 (filtersChange)="onFiltersChange($event)"
               ></app-filters-bar>
+            </div>
+          }
+
+          <!-- KPI Cards (show only on overview and analytics tabs) -->
+          @if (activeTab() === 'overview' || activeTab() === 'analytics') {
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-in">
+              @for (kpi of kpis(); track kpi.label) {
+                <app-kpi-card [kpi]="kpi"></app-kpi-card>
+              }
             </div>
           }
 

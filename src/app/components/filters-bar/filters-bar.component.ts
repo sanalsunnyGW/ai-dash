@@ -3,13 +3,15 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Filters, Department, Region, ProjectStatus } from '../../types/models';
 import { debounceTime, Subject } from 'rxjs';
+import { DateRangePickerComponent, DateRange } from '../date-range-picker/date-range-picker.component';
+import { SavedFiltersComponent } from '../saved-filters/saved-filters.component';
 
 @Component({
   selector: 'app-filters-bar',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, DateRangePickerComponent, SavedFiltersComponent],
   template: `
-    <div class="glass-card p-6 space-y-6">
+    <div class="glass-card p-6 space-y-6 relative z-50" style="overflow: visible !important;">
       <!-- Search -->
       <div class="relative">
         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -28,23 +30,26 @@ import { debounceTime, Subject } from 'rxjs';
       </div>
 
       <!-- Filter Pills Row -->
-      <div class="flex flex-wrap gap-3">
-        <!-- Date Preset -->
+      <div class="flex flex-wrap items-end gap-3">
+        <!-- Date Range Picker -->
         <div class="flex-shrink-0">
           <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">
-            Time Period
+            Date Range
           </label>
-          <select
-            [(ngModel)]="localFilters.datePreset"
-            (ngModelChange)="onFilterChange()"
-            class="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-smooth"
-            aria-label="Select time period"
-          >
-            <option value="Last 30 days">Last 30 days</option>
-            <option value="Last 90 days">Last 90 days</option>
-            <option value="YTD">Year to Date</option>
-            <option value="All">All Time</option>
-          </select>
+          <app-date-range-picker
+            (rangeChange)="onDateRangeChange($event)"
+          ></app-date-range-picker>
+        </div>
+
+        <!-- Saved Filters -->
+        <div class="flex-shrink-0">
+          <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">
+            Saved Filters
+          </label>
+          <app-saved-filters
+            [currentFilters]="localFilters"
+            (filterLoad)="loadSavedFilter($event)"
+          ></app-saved-filters>
         </div>
 
         <!-- Department Multi-select -->
@@ -64,7 +69,7 @@ import { debounceTime, Subject } from 'rxjs';
             </svg>
           </button>
           @if (showDeptDropdown) {
-            <div class="absolute z-10 mt-2 w-56 rounded-lg shadow-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 animate-scale-in">
+            <div class="absolute z-[100] mt-2 w-56 rounded-lg shadow-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 animate-scale-in">
               <div class="p-3 space-y-2 max-h-64 overflow-y-auto">
                 @for (dept of availableDepartments; track dept) {
                   <label class="flex items-center gap-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 px-2 py-1.5 rounded transition-smooth">
@@ -99,7 +104,7 @@ import { debounceTime, Subject } from 'rxjs';
             </svg>
           </button>
           @if (showRegionDropdown) {
-            <div class="absolute z-10 mt-2 w-56 rounded-lg shadow-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 animate-scale-in">
+            <div class="absolute z-[100] mt-2 w-56 rounded-lg shadow-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 animate-scale-in">
               <div class="p-3 space-y-2 max-h-64 overflow-y-auto">
                 @for (region of availableRegions; track region) {
                   <label class="flex items-center gap-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 px-2 py-1.5 rounded transition-smooth">
@@ -134,7 +139,7 @@ import { debounceTime, Subject } from 'rxjs';
             </svg>
           </button>
           @if (showStatusDropdown) {
-            <div class="absolute z-10 mt-2 w-48 rounded-lg shadow-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 animate-scale-in">
+            <div class="absolute z-[100] mt-2 w-48 rounded-lg shadow-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 animate-scale-in">
               <div class="p-3 space-y-2">
                 @for (status of availableStatuses; track status) {
                   <label class="flex items-center gap-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 px-2 py-1.5 rounded transition-smooth">
@@ -150,51 +155,6 @@ import { debounceTime, Subject } from 'rxjs';
               </div>
             </div>
           }
-        </div>
-      </div>
-
-      <!-- Sliders Row -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Risk Slider -->
-        <div>
-          <label class="flex items-center justify-between text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            <span>Max Risk Level</span>
-            <span class="text-primary-600 dark:text-primary-400 font-semibold">{{ localFilters.maxRisk }}</span>
-          </label>
-          <input
-            type="range"
-            min="0"
-            max="100"
-            [(ngModel)]="localFilters.maxRisk"
-            (ngModelChange)="onFilterChange()"
-            class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-primary-600"
-            aria-label="Maximum risk level filter"
-          />
-          <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
-            <span>0 (Low)</span>
-            <span>100 (High)</span>
-          </div>
-        </div>
-
-        <!-- Reward Slider -->
-        <div>
-          <label class="flex items-center justify-between text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            <span>Min Reward Level</span>
-            <span class="text-primary-600 dark:text-primary-400 font-semibold">{{ localFilters.minReward }}</span>
-          </label>
-          <input
-            type="range"
-            min="0"
-            max="100"
-            [(ngModel)]="localFilters.minReward"
-            (ngModelChange)="onFilterChange()"
-            class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-primary-600"
-            aria-label="Minimum reward level filter"
-          />
-          <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
-            <span>0 (Low)</span>
-            <span>100 (High)</span>
-          </div>
         </div>
       </div>
 
@@ -340,5 +300,25 @@ export class FiltersBarComponent implements OnInit, OnChanges {
 
   onFilterChange(): void {
     this.filtersChange.emit({ ...this.localFilters });
+  }
+
+  onDateRangeChange(range: DateRange): void {
+    // Update local filters with date range
+    // Map date range presets to filter presets
+    const presetMap: Record<string, 'Last 30 days' | 'Last 90 days' | 'YTD' | 'All'> = {
+      'last-30-days': 'Last 30 days',
+      'last-90-days': 'Last 90 days',
+      'ytd': 'YTD',
+      'custom': 'All'
+    };
+
+    this.localFilters.datePreset = presetMap[range.preset || 'custom'] || 'All';
+    this.onFilterChange();
+  }
+
+  loadSavedFilter(filters: Filters): void {
+    this.localFilters = { ...filters };
+    this.searchValue = filters.search;
+    this.onFilterChange();
   }
 }

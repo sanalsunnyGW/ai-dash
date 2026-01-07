@@ -1,61 +1,103 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, ViewChild, ElementRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgxEchartsModule } from 'ngx-echarts';
 import { EChartsOption } from 'echarts';
 import { Project } from '../../types/models';
+import { ChartToolbarComponent, ChartToolbarEvent } from '../chart-toolbar/chart-toolbar.component';
+import { ChartExportService } from '../../services/chart-export.service';
 
 @Component({
   selector: 'app-charts-panel',
   standalone: true,
-  imports: [CommonModule, NgxEchartsModule],
+  imports: [CommonModule, NgxEchartsModule, ChartToolbarComponent],
   template: `
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- Workflow Status Pie -->
       <div class="glass-card p-6">
-        <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">Workflow Status</h3>
-        <div echarts [options]="workflowStatusOption" [autoResize]="true" class="w-full" style="height: 300px;"></div>
+        <app-chart-toolbar
+          title="Workflow Status"
+          [showFullscreen]="true"
+          [showTableToggle]="false"
+          (toolbarAction)="handleToolbarAction($event, 'workflow-status')"
+        ></app-chart-toolbar>
+        <div echarts [options]="workflowStatusOption" [autoResize]="true" (chartInit)="onChartInit($event, 'workflow-status')" class="w-full" style="height: 300px;"></div>
       </div>
 
       <!-- Workload by Department Bar -->
       <div class="glass-card p-6">
-        <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">Workload by Department</h3>
-        <div echarts [options]="workloadByDeptOption" [autoResize]="true" class="w-full" style="height: 300px;"></div>
+        <app-chart-toolbar
+          title="Workload by Department"
+          [showFullscreen]="true"
+          [showTableToggle]="false"
+          (toolbarAction)="handleToolbarAction($event, 'workload-dept')"
+        ></app-chart-toolbar>
+        <div echarts [options]="workloadByDeptOption" [autoResize]="true" (chartInit)="onChartInit($event, 'workload-dept')" class="w-full" style="height: 300px;"></div>
       </div>
 
       <!-- Budget Utilization Trend -->
       <div class="glass-card p-6 lg:col-span-2">
-        <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">Budget Utilization & Forecast</h3>
-        <div echarts [options]="budgetTrendOption" [autoResize]="true" class="w-full" style="height: 350px;"></div>
+        <app-chart-toolbar
+          title="Budget Utilization & Forecast"
+          [showFullscreen]="true"
+          [showTableToggle]="false"
+          (toolbarAction)="handleToolbarAction($event, 'budget-trend')"
+        ></app-chart-toolbar>
+        <div echarts [options]="budgetTrendOption" [autoResize]="true" (chartInit)="onChartInit($event, 'budget-trend')" class="w-full" style="height: 350px;"></div>
       </div>
 
       <!-- Delay Analysis Line -->
       <div class="glass-card p-6">
-        <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">Delay Analysis</h3>
-        <div echarts [options]="delayAnalysisOption" [autoResize]="true" class="w-full" style="height: 300px;"></div>
+        <app-chart-toolbar
+          title="Delay Analysis"
+          [showFullscreen]="true"
+          [showTableToggle]="false"
+          (toolbarAction)="handleToolbarAction($event, 'delay-analysis')"
+        ></app-chart-toolbar>
+        <div echarts [options]="delayAnalysisOption" [autoResize]="true" (chartInit)="onChartInit($event, 'delay-analysis')" class="w-full" style="height: 300px;"></div>
       </div>
 
       <!-- Risk vs Reward Scatter -->
       <div class="glass-card p-6">
-        <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">Risk vs Reward</h3>
-        <div echarts [options]="riskRewardOption" [autoResize]="true" (chartClick)="onChartClick($event)" class="w-full cursor-pointer" style="height: 300px;"></div>
+        <app-chart-toolbar
+          title="Risk vs Reward"
+          [showFullscreen]="true"
+          [showTableToggle]="false"
+          (toolbarAction)="handleToolbarAction($event, 'risk-reward')"
+        ></app-chart-toolbar>
+        <div echarts [options]="riskRewardOption" [autoResize]="true" (chartInit)="onChartInit($event, 'risk-reward')" (chartClick)="onChartClick($event)" class="w-full cursor-pointer" style="height: 300px;"></div>
       </div>
 
       <!-- Efficiency Heatmap -->
       <div class="glass-card p-6">
-        <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">Efficiency Heatmap</h3>
-        <div echarts [options]="efficiencyHeatmapOption" [autoResize]="true" class="w-full" style="height: 350px;"></div>
+        <app-chart-toolbar
+          title="Efficiency Heatmap"
+          [showFullscreen]="true"
+          [showTableToggle]="false"
+          (toolbarAction)="handleToolbarAction($event, 'efficiency-heatmap')"
+        ></app-chart-toolbar>
+        <div echarts [options]="efficiencyHeatmapOption" [autoResize]="true" (chartInit)="onChartInit($event, 'efficiency-heatmap')" class="w-full" style="height: 350px;"></div>
       </div>
 
       <!-- Resource Allocation Radar -->
       <div class="glass-card p-6">
-        <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">Resource Allocation</h3>
-        <div echarts [options]="resourceRadarOption" [autoResize]="true" class="w-full" style="height: 350px;"></div>
+        <app-chart-toolbar
+          title="Resource Allocation"
+          [showFullscreen]="true"
+          [showTableToggle]="false"
+          (toolbarAction)="handleToolbarAction($event, 'resource-radar')"
+        ></app-chart-toolbar>
+        <div echarts [options]="resourceRadarOption" [autoResize]="true" (chartInit)="onChartInit($event, 'resource-radar')" class="w-full" style="height: 350px;"></div>
       </div>
 
       <!-- Task Phase Analysis Stacked Bar -->
       <div class="glass-card p-6 lg:col-span-2">
-        <h3 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">Task Phase Distribution</h3>
-        <div echarts [options]="taskPhaseOption" [autoResize]="true" class="w-full" style="height: 300px;"></div>
+        <app-chart-toolbar
+          title="Task Phase Distribution"
+          [showFullscreen]="true"
+          [showTableToggle]="false"
+          (toolbarAction)="handleToolbarAction($event, 'task-phase')"
+        ></app-chart-toolbar>
+        <div echarts [options]="taskPhaseOption" [autoResize]="true" (chartInit)="onChartInit($event, 'task-phase')" class="w-full" style="height: 300px;"></div>
       </div>
     </div>
   `,
@@ -65,6 +107,11 @@ export class ChartsPanelComponent implements OnChanges {
   @Input() projects: Project[] = [];
   @Input() isDarkMode: boolean = false;
   @Output() projectClick = new EventEmitter<Project>();
+
+  private chartExportService = inject(ChartExportService);
+
+  // Store chart instances for export
+  private chartInstances = new Map<string, any>();
 
   workflowStatusOption!: EChartsOption;
   workloadByDeptOption!: EChartsOption;
@@ -201,8 +248,8 @@ export class ChartsPanelComponent implements OnChanges {
             type: 'linear',
             x: 0, y: 0, x2: 0, y2: 1,
             colorStops: [
-              { offset: 0, color: '#667eea' },
-              { offset: 1, color: '#764ba2' }
+              { offset: 0, color: '#10b981' },
+              { offset: 1, color: '#059669' }
             ]
           },
           borderRadius: [8, 8, 0, 0]
@@ -213,8 +260,8 @@ export class ChartsPanelComponent implements OnChanges {
               type: 'linear',
               x: 0, y: 0, x2: 0, y2: 1,
               colorStops: [
-                { offset: 0, color: '#7c8ef5' },
-                { offset: 1, color: '#8b5cb8' }
+                { offset: 0, color: '#34d399' },
+                { offset: 1, color: '#10b981' }
               ]
             }
           }
@@ -632,5 +679,231 @@ export class ChartsPanelComponent implements OnChanges {
         this.projectClick.emit(project);
       }
     }
+  }
+
+  onChartInit(chartInstance: any, chartId: string): void {
+    // Store the chart instance for later use (exports, fullscreen, etc.)
+    this.chartInstances.set(chartId, chartInstance);
+  }
+
+  handleToolbarAction(event: ChartToolbarEvent, chartId: string): void {
+    const chartInstance = this.chartInstances.get(chartId);
+
+    switch (event.action) {
+      case 'export':
+        this.handleExport(event.format!, chartId, chartInstance);
+        break;
+      case 'fullscreen':
+        this.handleFullscreen(chartInstance);
+        break;
+      case 'toggle-table':
+        // Table view functionality can be added later
+        break;
+      case 'refresh':
+        this.updateCharts();
+        break;
+      case 'share':
+        // Share functionality can be added later
+        break;
+    }
+  }
+
+  private handleExport(format: string, chartId: string, chartInstance: any): void {
+    const chartData = this.getChartData(chartId);
+
+    switch (format) {
+      case 'csv':
+        this.chartExportService.exportToCSV(chartData);
+        break;
+      case 'json':
+        this.chartExportService.exportToJSON(chartData);
+        break;
+      case 'png':
+        this.chartExportService.exportToPNG(chartInstance, chartData.title);
+        break;
+      case 'svg':
+        this.chartExportService.exportToSVG(chartInstance, chartData.title);
+        break;
+    }
+  }
+
+  private handleFullscreen(chartInstance: any): void {
+    if (!chartInstance) return;
+
+    // Get the DOM element from the chart instance
+    const chartDom = chartInstance.getDom();
+    if (!chartDom) return;
+
+    const cardElement = chartDom.closest('.glass-card');
+    if (!cardElement) return;
+
+    if (!document.fullscreenElement) {
+      cardElement.requestFullscreen().catch((err: any) => {
+        console.error('Fullscreen error:', err);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  }
+
+  private getChartData(chartId: string): { title: string; headers: string[]; rows: any[][] } {
+    switch (chartId) {
+      case 'workflow-status':
+        return this.getWorkflowStatusData();
+      case 'workload-dept':
+        return this.getWorkloadByDeptData();
+      case 'budget-trend':
+        return this.getBudgetTrendData();
+      case 'delay-analysis':
+        return this.getDelayAnalysisData();
+      case 'risk-reward':
+        return this.getRiskRewardData();
+      case 'efficiency-heatmap':
+        return this.getEfficiencyHeatmapData();
+      case 'resource-radar':
+        return this.getResourceRadarData();
+      case 'task-phase':
+        return this.getTaskPhaseData();
+      default:
+        return { title: 'Chart Data', headers: [], rows: [] };
+    }
+  }
+
+  private getWorkflowStatusData() {
+    const statusCounts = this.projects.reduce((acc, p) => {
+      acc[p.status] = (acc[p.status] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    return {
+      title: 'Workflow Status',
+      headers: ['Status', 'Count', 'Percentage'],
+      rows: Object.entries(statusCounts).map(([status, count]) => [
+        status,
+        count,
+        ((count / this.projects.length) * 100).toFixed(1) + '%'
+      ])
+    };
+  }
+
+  private getWorkloadByDeptData() {
+    const deptCounts = this.projects.reduce((acc, p) => {
+      acc[p.department] = (acc[p.department] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    return {
+      title: 'Workload by Department',
+      headers: ['Department', 'Project Count'],
+      rows: Object.entries(deptCounts).map(([dept, count]) => [dept, count])
+    };
+  }
+
+  private getBudgetTrendData() {
+    const sortedProjects = [...this.projects].sort((a, b) => a.startDate.getTime() - b.startDate.getTime());
+
+    return {
+      title: 'Budget Utilization and Forecast',
+      headers: ['Project', 'Start Date', 'Budget Allocated', 'Budget Spent', 'Utilization %'],
+      rows: sortedProjects.map(p => [
+        p.name,
+        p.startDate.toLocaleDateString(),
+        p.budgetAllocated,
+        p.budgetSpent,
+        ((p.budgetSpent / p.budgetAllocated) * 100).toFixed(1) + '%'
+      ])
+    };
+  }
+
+  private getDelayAnalysisData() {
+    const delayedProjects = this.projects.filter(p => p.delayDays > 0).sort((a, b) => b.delayDays - a.delayDays);
+
+    return {
+      title: 'Delay Analysis',
+      headers: ['Project', 'Delay Days', 'Status', 'Department'],
+      rows: delayedProjects.map(p => [p.name, p.delayDays, p.status, p.department])
+    };
+  }
+
+  private getRiskRewardData() {
+    return {
+      title: 'Risk vs Reward Analysis',
+      headers: ['Project', 'Risk Score', 'Reward Score', 'Department', 'Status'],
+      rows: this.projects.map(p => [p.name, p.risk, p.reward, p.department, p.status])
+    };
+  }
+
+  private getEfficiencyHeatmapData() {
+    const departments = Array.from(new Set(this.projects.map(p => p.department)));
+    const regions = Array.from(new Set(this.projects.map(p => p.region)));
+    const rows: any[][] = [];
+
+    departments.forEach(dept => {
+      regions.forEach(region => {
+        const relevantProjects = this.projects.filter(p => p.department === dept && p.region === region);
+        if (relevantProjects.length > 0) {
+          const avgEfficiency = relevantProjects.reduce((sum, p) => sum + p.efficiency, 0) / relevantProjects.length;
+          rows.push([dept, region, Math.round(avgEfficiency), relevantProjects.length]);
+        }
+      });
+    });
+
+    return {
+      title: 'Efficiency Heatmap',
+      headers: ['Department', 'Region', 'Avg Efficiency %', 'Project Count'],
+      rows
+    };
+  }
+
+  private getResourceRadarData() {
+    const departments = Array.from(new Set(this.projects.map(p => p.department)));
+    const rows: any[][] = [];
+
+    departments.forEach(dept => {
+      const deptProjects = this.projects.filter(p => p.department === dept);
+      if (deptProjects.length > 0) {
+        const avgProgress = deptProjects.reduce((sum, p) => sum + p.progress, 0) / deptProjects.length;
+        const avgEfficiency = deptProjects.reduce((sum, p) => sum + p.efficiency, 0) / deptProjects.length;
+        const avgRisk = deptProjects.reduce((sum, p) => sum + p.risk, 0) / deptProjects.length;
+        const avgReward = deptProjects.reduce((sum, p) => sum + p.reward, 0) / deptProjects.length;
+        const avgBudgetUsage = deptProjects.reduce((sum, p) => sum + (p.budgetSpent / p.budgetAllocated * 100), 0) / deptProjects.length;
+
+        rows.push([
+          dept,
+          avgProgress.toFixed(1),
+          avgEfficiency.toFixed(1),
+          avgRisk.toFixed(1),
+          avgReward.toFixed(1),
+          avgBudgetUsage.toFixed(1)
+        ]);
+      }
+    });
+
+    return {
+      title: 'Resource Allocation',
+      headers: ['Department', 'Avg Progress %', 'Avg Efficiency %', 'Avg Risk', 'Avg Reward', 'Avg Budget Usage %'],
+      rows
+    };
+  }
+
+  private getTaskPhaseData() {
+    const departments = Array.from(new Set(this.projects.map(p => p.department)));
+    const phases = ['Planning', 'Execution', 'Monitoring', 'Closure'];
+    const rows: any[][] = [];
+
+    departments.forEach(dept => {
+      const row: any[] = [dept];
+      phases.forEach(phase => {
+        const count = this.projects.filter(p => p.department === dept && p.phase === phase).length;
+        row.push(count);
+      });
+      rows.push(row);
+    });
+
+    return {
+      title: 'Task Phase Distribution',
+      headers: ['Department', ...phases],
+      rows
+    };
   }
 }
