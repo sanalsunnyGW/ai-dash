@@ -34,7 +34,7 @@ import { ToastService } from '../../services/toast.service';
       <!-- Backdrop -->
       <div
         @fadeIn
-        class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 no-print"
+        class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] no-print"
         (click)="close()"
         [attr.aria-hidden]="true"
       ></div>
@@ -42,7 +42,7 @@ import { ToastService } from '../../services/toast.service';
       <!-- Drawer -->
       <div
         @slideIn
-        class="fixed right-0 top-0 h-full w-full md:w-[600px] lg:w-[700px] bg-white dark:bg-gray-900 shadow-2xl z-30 overflow-y-auto no-print"
+        class="fixed right-0 top-0 h-full w-full md:w-[600px] lg:w-[700px] bg-white dark:bg-gray-900 shadow-2xl z-[110] overflow-y-auto no-print"
         role="dialog"
         aria-modal="true"
         [attr.aria-labelledby]="'drawer-title-' + project.id"

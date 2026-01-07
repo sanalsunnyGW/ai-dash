@@ -3,17 +3,17 @@ import { CommonModule } from '@angular/common';
 import { ThemeService } from '../../services/theme.service';
 
 export type NavigationItem = {
-  id: string;
-  label: string;
-  icon: string;
-  active: boolean;
+	id: string;
+	label: string;
+	icon: string;
+	active: boolean;
 };
 
 @Component({
-  selector: 'app-shell-layout',
-  standalone: true,
-  imports: [CommonModule],
-  template: `
+	selector: 'app-shell-layout',
+	standalone: true,
+	imports: [CommonModule],
+	template: `
     <!-- Mesh gradient background -->
     <div class="mesh-gradient-bg"></div>
 
@@ -265,7 +265,7 @@ export type NavigationItem = {
     <!-- Filters Slideout Panel (if open) -->
     @if (showFiltersPanel()) {
       <div
-        class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 animate-fade-in"
+        class="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 animate-fade-in"
         (click)="toggleFiltersPanel()"
       >
         <div
@@ -291,7 +291,7 @@ export type NavigationItem = {
       </div>
     }
   `,
-  styles: [`
+	styles: [`
     .app-shell {
       display: flex;
       height: 100vh;
@@ -505,70 +505,70 @@ export type NavigationItem = {
   `]
 })
 export class AppShellLayoutComponent {
-  themeService = new ThemeService();
+	themeService = new ThemeService();
 
-  // Navigation
-  navItems = signal<NavigationItem[]>([
-    { id: 'overview', label: 'Overview', icon: '🏠', active: true },
-    { id: 'projects', label: 'Projects', icon: '📁', active: false },
-    { id: 'workflows', label: 'Workflows', icon: '⚡', active: false },
-    { id: 'departments', label: 'Departments', icon: '🏢', active: false },
-    { id: 'analytics', label: 'Analytics', icon: '📊', active: false },
-  ]);
+	// Navigation
+	navItems = signal<NavigationItem[]>([
+		{ id: 'overview', label: 'Overview', icon: '🏠', active: true },
+		{ id: 'projects', label: 'Projects', icon: '📁', active: false },
+		{ id: 'workflows', label: 'Workflows', icon: '⚡', active: false },
+		{ id: 'departments', label: 'Departments', icon: '🏢', active: false },
+		{ id: 'analytics', label: 'Analytics', icon: '📊', active: false },
+	]);
 
-  // State
-  isDarkMode = signal(this.themeService.isDarkMode());
-  pageTitle = signal('Overview');
-  pageSubtitle = signal('Real-time operations dashboard');
-  searchQuery = signal('');
-  selectedDatePreset = signal('Last 30 days');
-  showDateDropdown = signal(false);
-  showFiltersPanel = signal(false);
-  activeFiltersCount = signal(0);
-  notificationCount = signal(3);
+	// State
+	isDarkMode = signal(this.themeService.isDarkMode());
+	pageTitle = signal('Overview');
+	pageSubtitle = signal('Real-time operations dashboard');
+	searchQuery = signal('');
+	selectedDatePreset = signal('Last 30 days');
+	showDateDropdown = signal(false);
+	showFiltersPanel = signal(false);
+	activeFiltersCount = signal(0);
+	notificationCount = signal(3);
 
-  datePresets = ['Last 7 days', 'Last 30 days', 'Last 90 days', 'YTD', 'All Time'];
+	datePresets = ['Last 7 days', 'Last 30 days', 'Last 90 days', 'YTD', 'All Time'];
 
-  calendarDates = Array.from({ length: 31 }, (_, i) => i + 1);
+	calendarDates = Array.from({ length: 31 }, (_, i) => i + 1);
 
-  upcomingItems = [
-    { id: '1', icon: '📅', title: 'Q1 Review Meeting', time: 'Today, 2:00 PM' },
-    { id: '2', icon: '🎯', title: 'Sprint Planning', time: 'Tomorrow, 10:00 AM' },
-    { id: '3', icon: '📊', title: 'Milestone Deadline', time: 'Jan 15, 2026' },
-  ];
+	upcomingItems = [
+		{ id: '1', icon: '📅', title: 'Q1 Review Meeting', time: 'Today, 2:00 PM' },
+		{ id: '2', icon: '🎯', title: 'Sprint Planning', time: 'Tomorrow, 10:00 AM' },
+		{ id: '3', icon: '📊', title: 'Milestone Deadline', time: 'Jan 15, 2026' },
+	];
 
-  setActiveNav(id: string): void {
-    this.navItems.update(items =>
-      items.map(item => ({ ...item, active: item.id === id }))
-    );
+	setActiveNav(id: string): void {
+		this.navItems.update(items =>
+			items.map(item => ({ ...item, active: item.id === id }))
+		);
 
-    // Update page title based on active nav
-    const activeItem = this.navItems().find(item => item.id === id);
-    if (activeItem) {
-      this.pageTitle.set(activeItem.label);
-    }
-  }
+		// Update page title based on active nav
+		const activeItem = this.navItems().find(item => item.id === id);
+		if (activeItem) {
+			this.pageTitle.set(activeItem.label);
+		}
+	}
 
-  toggleDarkMode(): void {
-    this.themeService.toggleDarkMode();
-    this.isDarkMode.set(this.themeService.isDarkMode());
-  }
+	toggleDarkMode(): void {
+		this.themeService.toggleDarkMode();
+		this.isDarkMode.set(this.themeService.isDarkMode());
+	}
 
-  toggleDateDropdown(): void {
-    this.showDateDropdown.update(v => !v);
-  }
+	toggleDateDropdown(): void {
+		this.showDateDropdown.update(v => !v);
+	}
 
-  selectDatePreset(preset: string): void {
-    this.selectedDatePreset.set(preset);
-    this.showDateDropdown.set(false);
-  }
+	selectDatePreset(preset: string): void {
+		this.selectedDatePreset.set(preset);
+		this.showDateDropdown.set(false);
+	}
 
-  toggleFiltersPanel(): void {
-    this.showFiltersPanel.update(v => !v);
-  }
+	toggleFiltersPanel(): void {
+		this.showFiltersPanel.update(v => !v);
+	}
 
-  onSearchInput(event: Event): void {
-    const value = (event.target as HTMLInputElement).value;
-    this.searchQuery.set(value);
-  }
+	onSearchInput(event: Event): void {
+		const value = (event.target as HTMLInputElement).value;
+		this.searchQuery.set(value);
+	}
 }

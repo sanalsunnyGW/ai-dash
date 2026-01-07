@@ -4,15 +4,15 @@ import { CommonModule } from '@angular/common';
 export type ChartExportFormat = 'csv' | 'png' | 'svg' | 'json';
 
 export interface ChartToolbarEvent {
-  action: 'export' | 'fullscreen' | 'toggle-table' | 'refresh' | 'share';
-  format?: ChartExportFormat;
+	action: 'export' | 'fullscreen' | 'toggle-table' | 'refresh' | 'share';
+	format?: ChartExportFormat;
 }
 
 @Component({
-  selector: 'app-chart-toolbar',
-  standalone: true,
-  imports: [CommonModule],
-  template: `
+	selector: 'app-chart-toolbar',
+	standalone: true,
+	imports: [CommonModule],
+	template: `
     <div class="flex items-center justify-between mb-3 pb-3 border-b border-gray-200 dark:border-gray-700">
       <!-- Title -->
       <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">
@@ -39,7 +39,7 @@ export interface ChartToolbarEvent {
 
           <!-- Export Menu -->
           @if (showExportMenu) {
-            <div class="absolute right-0 mt-1 w-40 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-20 overflow-hidden">
+            <div class="absolute right-0 mt-1 w-40 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-40 overflow-hidden">
               <button
                 (click)="export('csv')"
                 class="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-smooth flex items-center gap-2"
@@ -133,54 +133,54 @@ export interface ChartToolbarEvent {
       </div>
     </div>
   `,
-  styles: [],
-  host: {
-    '(document:click)': 'onDocumentClick($event)'
-  }
+	styles: [],
+	host: {
+		'(document:click)': 'onDocumentClick($event)'
+	}
 })
 export class ChartToolbarComponent {
-  @Input() title: string = 'Chart';
-  @Input() showTableToggle: boolean = true;
-  @Input() showFullscreen: boolean = true;
-  @Input() showRefresh: boolean = false;
-  @Input() showShare: boolean = false;
-  @Input() isTableView: boolean = false;
-  @Input() isFullscreen: boolean = false;
+	@Input() title: string = 'Chart';
+	@Input() showTableToggle: boolean = true;
+	@Input() showFullscreen: boolean = true;
+	@Input() showRefresh: boolean = false;
+	@Input() showShare: boolean = false;
+	@Input() isTableView: boolean = false;
+	@Input() isFullscreen: boolean = false;
 
-  @Output() toolbarAction = new EventEmitter<ChartToolbarEvent>();
+	@Output() toolbarAction = new EventEmitter<ChartToolbarEvent>();
 
-  showExportMenu = false;
+	showExportMenu = false;
 
-  toggleExportMenu(): void {
-    this.showExportMenu = !this.showExportMenu;
-  }
+	toggleExportMenu(): void {
+		this.showExportMenu = !this.showExportMenu;
+	}
 
-  export(format: ChartExportFormat): void {
-    this.showExportMenu = false;
-    this.toolbarAction.emit({ action: 'export', format });
-  }
+	export(format: ChartExportFormat): void {
+		this.showExportMenu = false;
+		this.toolbarAction.emit({ action: 'export', format });
+	}
 
-  toggleTable(): void {
-    this.toolbarAction.emit({ action: 'toggle-table' });
-  }
+	toggleTable(): void {
+		this.toolbarAction.emit({ action: 'toggle-table' });
+	}
 
-  toggleFullscreen(): void {
-    this.toolbarAction.emit({ action: 'fullscreen' });
-  }
+	toggleFullscreen(): void {
+		this.toolbarAction.emit({ action: 'fullscreen' });
+	}
 
-  refresh(): void {
-    this.toolbarAction.emit({ action: 'refresh' });
-  }
+	refresh(): void {
+		this.toolbarAction.emit({ action: 'refresh' });
+	}
 
-  share(): void {
-    this.toolbarAction.emit({ action: 'share' });
-  }
+	share(): void {
+		this.toolbarAction.emit({ action: 'share' });
+	}
 
-  onDocumentClick(event: Event): void {
-    // Close export menu when clicking outside
-    const target = event.target as HTMLElement;
-    if (!target.closest('button[aria-label="Export chart"]') && !target.closest('.absolute')) {
-      this.showExportMenu = false;
-    }
-  }
+	onDocumentClick(event: Event): void {
+		// Close export menu when clicking outside
+		const target = event.target as HTMLElement;
+		if (!target.closest('button[aria-label="Export chart"]') && !target.closest('.absolute')) {
+			this.showExportMenu = false;
+		}
+	}
 }
